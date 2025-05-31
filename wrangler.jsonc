@@ -16,9 +16,9 @@
     ],
     "secrets_store_secrets": [
         {
-            "store_id": "<YOUR-STORE-ID>",
+            "store_id": "20631a3cab2e4cc2a536c7cf74892a89",
             "binding": "SECRET",
-            "secret_name": "<YOUR-SECRET-NAME>"
+            "secret_name": "warera_db_api_key"
         }
     ],
 	"observability": {
