@@ -15,7 +15,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { TradingPricesResult } from "./response";
+import { calculateProfit } from "./profit";
+import { availableProducts, ExtendedProduct, Product, TradingPricesResult } from "./types";
 
 export interface Env {
 	DB: D1Database;
@@ -43,11 +44,20 @@ export default {
 			wasSuccessful = 'success';
 
 			const result = await resp.json() as TradingPricesResult;
+			const { result: { data } } = result;
 			const timestamp = Date.now();
 
-			const ps = env.DB.prepare(`INSERT INTO marketHistory (product, timestamp, price) VALUES (?, ?, ?)`);
-			const queries = Object.entries(result.result.data).map(([product, price]) => ps.bind(product, timestamp, price));
-			await env.DB.batch(queries);
+			// save market history
+			const psMarket = env.DB.prepare(`INSERT INTO marketHistory (product, timestamp, price) VALUES (?, ?, ?)`);
+			const queriesMarket = Object.entries(data).map(([product, price]) => psMarket.bind(product, timestamp, price));
+			await env.DB.batch(queriesMarket);
+
+			// save profit history
+			const psProfit = env.DB.prepare(`INSERT INTO profitHistory (product, timestamp, workUnitProfit) VALUES (?, ?, ?)`);
+			const queriesProfit = (Object.keys(data) as ExtendedProduct[])
+				.filter((product) => availableProducts.includes(product as any))
+				.map((product) => psProfit.bind(product, timestamp, calculateProfit(data, product as Product)));
+			await env.DB.batch(queriesProfit);
 		} else {
 			wasSuccessful = 'fail';
 		}
