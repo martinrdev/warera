@@ -65,4 +65,3 @@ export default {
 		console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`);
 	},
 } satisfies ExportedHandler<Env>;
-
