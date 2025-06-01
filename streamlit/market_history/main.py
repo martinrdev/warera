@@ -6,27 +6,22 @@ import requests
 DATA_API_URL = st.secrets["data_api_url"]
 DATA_API_KEY = st.secrets["data_api_key"]
 
-# Add sidebar for page selection
-page = st.sidebar.selectbox("Select page", ["Market History", "Profit History"])
+st.title("Warera Market")
 
-if page == "Market History":
-    st.title("Warera Market History")
+query_url = urljoin(DATA_API_URL, "query")
 
-    url = urljoin(DATA_API_URL, "query")
+headers = {
+    'Authorization': DATA_API_KEY,
+}
 
-    headers = {
-        'Authorization': DATA_API_KEY,
-    }
-
-    query = "SELECT * FROM marketHistory"
-    query_params = []
-
+@st.fragment()
+def render_market_history():
     body = {
-        "query": query,
-        "params": query_params
+        "query": "SELECT * FROM marketHistory",
+        "params": [],
     }
 
-    result = requests.post(url, headers=headers, json=body)
+    result = requests.post(query_url, headers=headers, json=body)
 
     if not result.ok:
         st.error(f"Error fetching data: {result.status_code} - {result.text}")
@@ -52,24 +47,15 @@ if page == "Market History":
 
     st.line_chart(df_pivot, use_container_width=True)
 
-elif page == "Profit History":
-    st.title("Warera Profit History")
 
-    url = urljoin(DATA_API_URL, "query")
-
-    headers = {
-        'Authorization': DATA_API_KEY,
-    }
-
-    query = "SELECT * FROM profitHistory"
-    query_params = []
-
+@st.fragment()
+def render_profit_history():
     body = {
-        "query": query,
-        "params": query_params
-    }
+            "query": "SELECT * FROM profitHistory",
+            "params": [],
+        }
 
-    result = requests.post(url, headers=headers, json=body)
+    result = requests.post(query_url, headers=headers, json=body)
 
     if not result.ok:
         st.error(f"Error fetching data: {result.status_code} - {result.text}")
@@ -87,7 +73,7 @@ elif page == "Profit History":
     df.set_index('timestamp', inplace=True)
 
     st.write("This is the profit history data fetched from the API.")
-    
+
     # Pivot the DataFrame so each product is a column, indexed by timestamp
     df_pivot = df.pivot(columns='product', values='workUnitProfit')
     st.dataframe(df_pivot)
@@ -96,3 +82,7 @@ elif page == "Profit History":
         st.line_chart(df_pivot, use_container_width=True)
     else:
         st.line_chart(df, use_container_width=True)
+
+
+render_market_history()
+render_profit_history()
