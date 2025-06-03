@@ -69,7 +69,7 @@ def render_market_history():
     }
     st.dataframe(latest_df, hide_index=True, use_container_width=True, column_config=column_config)
 
-    st.line_chart(df_pivot, use_container_width=True)
+    st.line_chart(df_pivot, use_container_width=True, x_label="Tiempo", y_label="Precio (BTC)")
 
 
 @st.fragment()
@@ -120,7 +120,7 @@ def render_profit_history():
     }
     st.dataframe(latest_df, hide_index=True, use_container_width=True, column_config=column_config)
     
-    st.line_chart(df_pivot, use_container_width=True)
+    st.line_chart(df_pivot, use_container_width=True, x_label="Tiempo", y_label="Rendimiento del trabajo (BTC)")
 
 
 render_market_history()
