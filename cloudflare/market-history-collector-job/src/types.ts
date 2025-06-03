@@ -13,7 +13,7 @@ export const availableProducts = [
     'heavyAmmo',
     'steak',
     'cocain',
-    'cookedFish'
+    'cookedFish',
 ] as const;
 
 export type Product = typeof availableProducts[number];

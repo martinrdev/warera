@@ -1,0 +1,18 @@
+PRODUCT_LABELS = {
+    "lead": "plomo",
+    "coca": "planta misteriosa",
+    "iron": "hierro",
+    "fish": "pescado",
+    "livestock": "ganado",
+    "grain": "grano",
+    "limestone": "caliza",
+    "ammo": "munición",
+    "bread": "pan",
+    "steel": "acero",
+    "concrete": "hormigón",
+    "heavyAmmo": "munición pesada",
+    "steak": "carne",
+    "cocain": "píldora",
+    "cookedFish": "pescado cocido",
+    "case1": "caja",
+}
