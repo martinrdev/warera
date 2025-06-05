@@ -6,14 +6,9 @@ import requests
 import pytz
 from utils import PRODUCT_LABELS
 
+# setup app configuration
 DATA_API_URL = st.secrets["data_api_url"]
 DATA_API_KEY = st.secrets["data_api_key"]
-
-st.set_page_config(
-    page_title="Warera - Análisis de mercado",
-    page_icon=":bar_chart:",
-)
-st.title("Warera - Análisis de mercado")
 
 query_url = urljoin(DATA_API_URL, "query")
 
@@ -21,12 +16,22 @@ headers = {
     'Authorization': DATA_API_KEY,
 }
 
-@st.fragment()
-def render_market_history():
-    st.header("Precios de mercado")
+query_filter_mapping = {
+    "24 horas": "timestamp >= strftime('%s', 'now', '-24 hours') * 1000",
+    "3 días": "timestamp >= strftime('%s', 'now', '-3 days') * 1000 AND strftime('%M', timestamp / 1000, 'unixepoch') = '00'",
+    "7 días": "timestamp >= strftime('%s', 'now', '-7 days') * 1000 AND strftime('%M', timestamp / 1000, 'unixepoch') = '00'",
+}
 
+# setup page configuration
+st.set_page_config(
+    page_title="Warera - Análisis de mercado",
+    page_icon=":bar_chart:",
+)
+
+@st.fragment()
+def render_market_history(query_filter: str):
     body = {
-        "query": "SELECT * FROM marketHistory",
+        "query": "SELECT * FROM marketHistory WHERE " + query_filter,
         "params": [],
     }
     result = requests.post(query_url, headers=headers, json=body)
@@ -73,11 +78,9 @@ def render_market_history():
 
 
 @st.fragment()
-def render_profit_history():
-    st.header("Rendimiento de unidades de trabajo")
-
+def render_profit_history(query_filter: str):
     body = {
-            "query": "SELECT * FROM profitHistory",
+            "query": "SELECT * FROM profitHistory WHERE " + query_filter,
             "params": [],
         }
     result = requests.post(query_url, headers=headers, json=body)
@@ -123,6 +126,21 @@ def render_profit_history():
     st.line_chart(df_pivot, use_container_width=True, x_label="Tiempo", y_label="Rendimiento del trabajo (BTC)")
 
 
-render_market_history()
+# render page
+st.title("Warera - Análisis de mercado")
+
+time_selection = st.selectbox(
+        "Selecciona el intervalo de tiempo",
+        options=["24 horas", "3 días", "7 días"],
+    )
+query_filter = query_filter_mapping[time_selection]
+
+st.header("Precios de mercado")
+with st.spinner("Cargando precios..."):
+    render_market_history(query_filter)
+
 st.divider()
-render_profit_history()
+
+st.header("Rendimiento de unidades de trabajo")
+with st.spinner("Cargando rendimiento..."):
+    render_profit_history(query_filter)
